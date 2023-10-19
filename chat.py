@@ -12,8 +12,12 @@ from langchain.agents import initialize_agent, AgentType
 from langchain.tools import tool
 from web_client import RestClient
 from speech import speak
+from speech import transcribe
+from langchain.schema import SystemMessage
 
 load_dotenv()
+
+assistant_name = "Anna"
 
 # Web Search with SERP API
 @tool
@@ -44,20 +48,22 @@ def search_web(query: str) -> str:
 
   return web_result
 
-llm = ChatOpenAI(model="gpt-4", temperature=0.2)
-tools = [search_web]
-memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-agent_chain = initialize_agent(tools, llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=False, memory=memory, handle_parsing_errors=True)
 
 def start_chat():
   """
   Starts a chat with the LLM.
   """
-  print("Input something to start the conversation. Type 'exit' to quit.")
+  global assistant_name, assistant_state
+  llm = ChatOpenAI(model="gpt-3.5-turbo-0613", temperature=0.2)
+  tools = [search_web]
+  memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+  system_message = "You are a computer terminal based assistant that can answer questions and perform tasks. Your name is " + assistant_name + ". Please try to act as humane as possible."
+  
+  agent_chain = initialize_agent(tools, llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION , verbose=True, memory=memory, handle_parsing_errors=True, agent_kwargs={"system_message": system_message})
+
+  print("Speak something to start the conversation or say 'goodbye " + assistant_name + "' to exit.")
   while True:
-    user_input = input("User: ")
-    if user_input == "exit":
-      break
+    user_input = transcribe()
     response = agent_chain(user_input)
-    print("AI: " + response["output"])
+    print(assistant_name + ": " + response["output"])
     speak(response["output"])
