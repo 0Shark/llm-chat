@@ -54,7 +54,7 @@ def start_chat():
   Starts a chat with the LLM.
   """
   global assistant_name, assistant_state
-  llm = ChatOpenAI(model="gpt-3.5-turbo-0613", temperature=0.2)
+  llm = ChatOpenAI(model="gpt-4-1106-preview", temperature=0.2)
   tools = [search_web]
   memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
   system_message = "You are a computer terminal based assistant that can answer questions and perform tasks. Your name is " + assistant_name + ". Please try to act as humane as possible."
