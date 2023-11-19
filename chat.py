@@ -17,7 +17,7 @@ from langchain.schema import SystemMessage
 
 load_dotenv()
 
-assistant_name = "Anna"
+assistant_name = "GPT"
 
 # Web Search with SERP API
 @tool
@@ -59,11 +59,13 @@ def start_chat():
   memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
   system_message = "You are a computer terminal based assistant that can answer questions and perform tasks. Your name is " + assistant_name + ". Please try to act as humane as possible."
   
-  agent_chain = initialize_agent(tools, llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION , verbose=True, memory=memory, handle_parsing_errors=True, agent_kwargs={"system_message": system_message})
+  agent_chain = initialize_agent(tools, llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION , verbose=False, memory=memory, handle_parsing_errors=True, agent_kwargs={"system_message": system_message})
 
-  print("Speak something to start the conversation or say 'goodbye " + assistant_name + "' to exit.")
+  print("Speak something to start the conversation...")
   while True:
     user_input = transcribe()
+    if user_input == False:
+      continue
     response = agent_chain(user_input)
     print(assistant_name + ": " + response["output"])
     speak(response["output"])

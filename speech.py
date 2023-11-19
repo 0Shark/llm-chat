@@ -12,10 +12,20 @@ def speak(text: str):
   stream(audio_stream)
 
 def transcribe():
-    print("Initializing speech recognition...")
     speech_config = speechsdk.SpeechConfig(subscription=os.getenv("AZURE_SPEECH_KEY"), region=os.getenv("AZURE_SPEECH_REGION"))
     speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
     print("Say something...")
-    result = speech_recognizer.recognize_once_async().get()
-    print("You said: " + result.text)
-    return result.text
+
+    def handle_intermediate_result(evt):
+        print("You: {}".format(evt.result.text), flush=True)
+
+    speech_recognizer.recognizing.connect(handle_intermediate_result)
+
+    result = speech_recognizer.recognize_once()
+
+    if result.reason == speechsdk.ResultReason.RecognizedSpeech:
+        return result.text
+    
+    elif result.reason == speechsdk.ResultReason.NoMatch:
+        print("No speech could be recognized: {}".format(result.no_match_details))
+        return False
