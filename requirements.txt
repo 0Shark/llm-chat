@@ -1,6 +1,7 @@
 openai
 python-dotenv
 langchain
+langchain_openai
 client
 elevenlabs
 azure-cognitiveservices-speech
